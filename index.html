@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        #map {
+            width: 922px;
+            height: 602px;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/Lightness_0.js"></script>
+        <script src="data/Koordinatdanfoto_1.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[-25.022373934620745,85.23573753846098],[23.54646627300623,159.7079591901557]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        function pop_Lightness_0(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">OBJECTID</th>\
+                        <td>' + (feature.properties['OBJECTID'] !== null ? autolinker.link(String(feature.properties['OBJECTID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">METADATA</th>\
+                        <td>' + (feature.properties['METADATA'] !== null ? autolinker.link(String(feature.properties['METADATA']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">WADMPR</th>\
+                        <td>' + (feature.properties['WADMPR'] !== null ? autolinker.link(String(feature.properties['WADMPR']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">LUAS</th>\
+                        <td>' + (feature.properties['LUAS'] !== null ? autolinker.link(String(feature.properties['LUAS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_Jml_kawasan_lindung</th>\
+                        <td>' + (feature.properties['_Jml_kawasan_lindung'] !== null ? autolinker.link(String(feature.properties['_Jml_kawasan_lindung']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_KawasanSatwaAlam/Pelestarian Alama</th>\
+                        <td>' + (feature.properties['_KawasanSatwaAlam/Pelestarian Alama'] !== null ? autolinker.link(String(feature.properties['_KawasanSatwaAlam/Pelestarian Alama']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_CagarAlam</th>\
+                        <td>' + (feature.properties['_CagarAlam'] !== null ? autolinker.link(String(feature.properties['_CagarAlam']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_SuakaMargasatwa</th>\
+                        <td>' + (feature.properties['_SuakaMargasatwa'] !== null ? autolinker.link(String(feature.properties['_SuakaMargasatwa']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_TamanBuru</th>\
+                        <td>' + (feature.properties['_TamanBuru'] !== null ? autolinker.link(String(feature.properties['_TamanBuru']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_TamanNasional</th>\
+                        <td>' + (feature.properties['_TamanNasional'] !== null ? autolinker.link(String(feature.properties['_TamanNasional']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Lightness_0_0(feature) {
+            if (feature.properties['_Jml_kawasan_lindung'] >= 0.000000 && feature.properties['_Jml_kawasan_lindung'] <= 2.000000 ) {
+                return {
+                pane: 'pane_Lightness_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(247,251,255,1.0)',
+                interactive: false,
+            }
+            }
+            if (feature.properties['_Jml_kawasan_lindung'] >= 2.000000 && feature.properties['_Jml_kawasan_lindung'] <= 5.000000 ) {
+                return {
+                pane: 'pane_Lightness_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(175,209,231,1.0)',
+                interactive: false,
+            }
+            }
+            if (feature.properties['_Jml_kawasan_lindung'] >= 5.000000 && feature.properties['_Jml_kawasan_lindung'] <= 9.000000 ) {
+                return {
+                pane: 'pane_Lightness_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(62,142,196,1.0)',
+                interactive: false,
+            }
+            }
+            if (feature.properties['_Jml_kawasan_lindung'] >= 9.000000 && feature.properties['_Jml_kawasan_lindung'] <= 25.000000 ) {
+                return {
+                pane: 'pane_Lightness_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(8,48,107,1.0)',
+                interactive: false,
+            }
+            }
+        }
+        map.createPane('pane_Lightness_0');
+        map.getPane('pane_Lightness_0').style.zIndex = 400;
+        map.getPane('pane_Lightness_0').style['mix-blend-mode'] = 'normal';
+        var layer_Lightness_0 = new L.geoJson(json_Lightness_0, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Lightness_0',
+            layerName: 'layer_Lightness_0',
+            pane: 'pane_Lightness_0',
+            onEachFeature: pop_Lightness_0,
+            style: style_Lightness_0_0,
+        });
+        bounds_group.addLayer(layer_Lightness_0);
+        map.addLayer(layer_Lightness_0);
+        function pop_Koordinatdanfoto_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">NO</th>\
+                        <td>' + (feature.properties['NO'] !== null ? autolinker.link(String(feature.properties['NO']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">ID</th>\
+                        <td>' + (feature.properties['ID'] !== null ? autolinker.link(String(feature.properties['ID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">NAMA ITEM DATA</th>\
+                        <td>' + (feature.properties['NAMA ITEM DATA'] !== null ? autolinker.link(String(feature.properties['NAMA ITEM DATA']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">DATA SPESIAL 1</th>\
+                        <td>' + (feature.properties['DATA SPESIAL 1'] !== null ? autolinker.link(String(feature.properties['DATA SPESIAL 1']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">DATA SPESIAL 2</th>\
+                        <td>' + (feature.properties['DATA SPESIAL 2'] !== null ? autolinker.link(String(feature.properties['DATA SPESIAL 2']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">DATA SPESIAL 3</th>\
+                        <td>' + (feature.properties['DATA SPESIAL 3'] !== null ? autolinker.link(String(feature.properties['DATA SPESIAL 3']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">LATITUDE</th>\
+                        <td>' + (feature.properties['LATITUDE'] !== null ? autolinker.link(String(feature.properties['LATITUDE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">LONGITUDE</th>\
+                        <td>' + (feature.properties['LONGITUDE'] !== null ? autolinker.link(String(feature.properties['LONGITUDE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">KATERGOTY DATA</th>\
+                        <td>' + (feature.properties['KATERGOTY DATA'] !== null ? autolinker.link(String(feature.properties['KATERGOTY DATA']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Balai Kawasan Lindung</th>\
+                        <td>' + (feature.properties['Balai Kawasan Lindung'] !== null ? autolinker.link(String(feature.properties['Balai Kawasan Lindung']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Waktu Buka</th>\
+                        <td>' + (feature.properties['Waktu Buka'] !== null ? autolinker.link(String(feature.properties['Waktu Buka']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">website</th>\
+                        <td>' + (feature.properties['website'] !== null ? autolinker.link(String(feature.properties['website']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Sosmed</th>\
+                        <td>' + (feature.properties['Sosmed'] !== null ? autolinker.link(String(feature.properties['Sosmed']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Fungsi</th>\
+                        <td>' + (feature.properties['Fungsi'] !== null ? autolinker.link(String(feature.properties['Fungsi']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Tugas</th>\
+                        <td>' + (feature.properties['Tugas'] !== null ? autolinker.link(String(feature.properties['Tugas']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Reting</th>\
+                        <td>' + (feature.properties['Reting'] !== null ? autolinker.link(String(feature.properties['Reting']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Jenis Kegiatan</th>\
+                        <td>' + (feature.properties['Jenis Kegiatan'] !== null ? autolinker.link(String(feature.properties['Jenis Kegiatan']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Mitra</th>\
+                        <td>' + (feature.properties['Mitra'] !== null ? autolinker.link(String(feature.properties['Mitra']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">No HP</th>\
+                        <td>' + (feature.properties['No HP'] !== null ? autolinker.link(String(feature.properties['No HP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">PHOTO/GAMBAR</th>\
+                        <td>' + (feature.properties['PHOTO/GAMBAR'] !== null ? '<img src="images/' + String(feature.properties['PHOTO/GAMBAR']).replace(/[\\/:]/g, '_').trim().replace(/'/g, '\'').replace(/"/g, '&quot;') + '">' : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">2023</th>\
+                        <td>' + (feature.properties['2023'] !== null ? autolinker.link(String(feature.properties['2023']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">2024</th>\
+                        <td>' + (feature.properties['2024'] !== null ? autolinker.link(String(feature.properties['2024']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">2025</th>\
+                        <td>' + (feature.properties['2025'] !== null ? autolinker.link(String(feature.properties['2025']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Koordinatdanfoto_1_0() {
+            return {
+                pane: 'pane_Koordinatdanfoto_1',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(229,182,54,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Koordinatdanfoto_1');
+        map.getPane('pane_Koordinatdanfoto_1').style.zIndex = 401;
+        map.getPane('pane_Koordinatdanfoto_1').style['mix-blend-mode'] = 'normal';
+        var layer_Koordinatdanfoto_1 = new L.geoJson(json_Koordinatdanfoto_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Koordinatdanfoto_1',
+            layerName: 'layer_Koordinatdanfoto_1',
+            pane: 'pane_Koordinatdanfoto_1',
+            onEachFeature: pop_Koordinatdanfoto_1,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Koordinatdanfoto_1_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Koordinatdanfoto_1);
+        map.addLayer(layer_Koordinatdanfoto_1);
+        var overlaysTree = [
+            {label: '<img src="legend/Koordinatdanfoto_1.png" /> Koordinat dan foto', layer: layer_Koordinatdanfoto_1},
+            {label: 'Lightness<br /><table><tr><td style="text-align: center;"><img src="legend/Lightness_0_020.png" /></td><td>0 - 2</td></tr><tr><td style="text-align: center;"><img src="legend/Lightness_0_251.png" /></td><td>2 - 5</td></tr><tr><td style="text-align: center;"><img src="legend/Lightness_0_592.png" /></td><td>5 - 9</td></tr><tr><td style="text-align: center;"><img src="legend/Lightness_0_9253.png" /></td><td>9 - 25</td></tr></table>', layer: layer_Lightness_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_Koordinatdanfoto_1,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'NAMA ITEM DATA'}));
+        document.getElementsByClassName('search-button')[0].className +=
+         ' fa fa-binoculars';
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"KATERGOTY DATA": "str","NAMA ITEM DATA": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_KATERGOTYDATA = document.createElement('div');
+            div_KATERGOTYDATA.id = "div_KATERGOTYDATA";
+            div_KATERGOTYDATA.className= "filterselect";
+            document.getElementById("menu").appendChild(div_KATERGOTYDATA);
+            sel_KATERGOTYDATA = document.createElement('select');
+            sel_KATERGOTYDATA.multiple = true;
+            sel_KATERGOTYDATA.size = 3;
+            sel_KATERGOTYDATA.id = "sel_KATERGOTYDATA";
+            var KATERGOTYDATA_options_str = "<option value='' unselected></option>";
+            sel_KATERGOTYDATA.onchange = function(){filterFunc()};
+            KATERGOTYDATA_options_str  += '<option value="CA">CA</option>';
+            KATERGOTYDATA_options_str  += '<option value="KSA/KPA">KSA/KPA</option>';
+            KATERGOTYDATA_options_str  += '<option value="SM">SM</option>';
+            sel_KATERGOTYDATA.innerHTML = KATERGOTYDATA_options_str;
+            div_KATERGOTYDATA.appendChild(sel_KATERGOTYDATA);
+            var lab_KATERGOTYDATA = document.createElement('div');
+            lab_KATERGOTYDATA.innerHTML = 'KATERGOTY DATA';
+            lab_KATERGOTYDATA.className = 'filterlabel';
+            div_KATERGOTYDATA.appendChild(lab_KATERGOTYDATA);
+            var reset_KATERGOTYDATA = document.createElement('div');
+            reset_KATERGOTYDATA.innerHTML = 'clear filter';
+            reset_KATERGOTYDATA.className = 'filterlabel';
+            reset_KATERGOTYDATA.onclick = function() {
+                var options = document.getElementById("sel_KATERGOTYDATA").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_KATERGOTYDATA.appendChild(reset_KATERGOTYDATA);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_NAMAITEMDATA = document.createElement('div');
+            div_NAMAITEMDATA.id = "div_NAMAITEMDATA";
+            div_NAMAITEMDATA.className= "filterselect";
+            document.getElementById("menu").appendChild(div_NAMAITEMDATA);
+            sel_NAMAITEMDATA = document.createElement('select');
+            sel_NAMAITEMDATA.multiple = true;
+            sel_NAMAITEMDATA.size = 10;
+            sel_NAMAITEMDATA.id = "sel_NAMAITEMDATA";
+            var NAMAITEMDATA_options_str = "<option value='' unselected></option>";
+            sel_NAMAITEMDATA.onchange = function(){filterFunc()};
+            NAMAITEMDATA_options_str  += '<option value="	Batang Palupuh">	Batang Palupuh</option>';
+            NAMAITEMDATA_options_str  += '<option value="	Serbojadi">	Serbojadi</option>';
+            NAMAITEMDATA_options_str  += '<option value="Asam-asam">Asam-asam</option>';
+            NAMAITEMDATA_options_str  += '<option value="Bantarbolang">Bantarbolang</option>';
+            NAMAITEMDATA_options_str  += '<option value="Baringin Sati">Baringin Sati</option>';
+            NAMAITEMDATA_options_str  += '<option value="Batang Pangean I">Batang Pangean I</option>';
+            NAMAITEMDATA_options_str  += '<option value="Batang Pangean II">Batang Pangean II</option>';
+            NAMAITEMDATA_options_str  += '<option value="Batu Gajah">Batu Gajah</option>';
+            NAMAITEMDATA_options_str  += '<option value="Batu Ginurit">Batu Ginurit</option>';
+            NAMAITEMDATA_options_str  += '<option value="Bekutuk">Bekutuk</option>';
+            NAMAITEMDATA_options_str  += '<option value="Bojong Larang Jayanti">Bojong Larang Jayanti</option>';
+            NAMAITEMDATA_options_str  += '<option value="Bukii Dako">Bukii Dako</option>';
+            NAMAITEMDATA_options_str  += '<option value="Bukit Bungkuk">Bukit Bungkuk</option>';
+            NAMAITEMDATA_options_str  += '<option value="Bukit Rawi (Eks PLG II)">Bukit Rawi (Eks PLG II)</option>';
+            NAMAITEMDATA_options_str  += '<option value="Bukit Tangkiling">Bukit Tangkiling</option>';
+            NAMAITEMDATA_options_str  += '<option value="Cabak">Cabak</option>';
+            NAMAITEMDATA_options_str  += '<option value="Cadas Malang">Cadas Malang</option>';
+            NAMAITEMDATA_options_str  += '<option value="Cagar Alam Bukit Sapat Hawung">Cagar Alam Bukit Sapat Hawung</option>';
+            NAMAITEMDATA_options_str  += '<option value="Cagar Alam Gunung Api Kisar">Cagar Alam Gunung Api Kisar</option>';
+            NAMAITEMDATA_options_str  += '<option value="Cagar Alam Gunung Nyiut Penrissen">Cagar Alam Gunung Nyiut Penrissen</option>';
+            NAMAITEMDATA_options_str  += '<option value="Cagar Alam Gunung Tinombala">Cagar Alam Gunung Tinombala</option>';
+            NAMAITEMDATA_options_str  += '<option value="Cagar Alam Pagerwunung">Cagar Alam Pagerwunung</option>';
+            NAMAITEMDATA_options_str  += '<option value="Cagar Alam Pangi Binangga">Cagar Alam Pangi Binangga</option>';
+            NAMAITEMDATA_options_str  += '<option value="Cagar Alam Panua">Cagar Alam Panua</option>';
+            NAMAITEMDATA_options_str  += '<option value="Cagar Alam Tangale">Cagar Alam Tangale</option>';
+            NAMAITEMDATA_options_str  += '<option value="Cagar Alam Telaga Ranjeng">Cagar Alam Telaga Ranjeng</option>';
+            NAMAITEMDATA_options_str  += '<option value="Calon Tahura Mesawa">Calon Tahura Mesawa</option>';
+            NAMAITEMDATA_options_str  += '<option value="Cibanteng">Cibanteng</option>';
+            NAMAITEMDATA_options_str  += '<option value="Cigenteng Cipanyi">Cigenteng Cipanyi</option>';
+            NAMAITEMDATA_options_str  += '<option value="Curug Bengkawah">Curug Bengkawah</option>';
+            NAMAITEMDATA_options_str  += '<option value="Daab">Daab</option>';
+            NAMAITEMDATA_options_str  += '<option value="Danau Tihu">Danau Tihu</option>';
+            NAMAITEMDATA_options_str  += '<option value="Danuera">Danuera</option>';
+            NAMAITEMDATA_options_str  += '<option value="Dolok Saut">Dolok Saut</option>';
+            NAMAITEMDATA_options_str  += '<option value="Dolok Sibual-Buali">Dolok Sibual-Buali</option>';
+            NAMAITEMDATA_options_str  += '<option value="Dolok Sipirok">Dolok Sipirok</option>';
+            NAMAITEMDATA_options_str  += '<option value="Dolok Surungan">Dolok Surungan</option>';
+            NAMAITEMDATA_options_str  += '<option value="Dolok Tinggi Raja">Dolok Tinggi Raja</option>';
+            NAMAITEMDATA_options_str  += '<option value="Donoloyo">Donoloyo</option>';
+            NAMAITEMDATA_options_str  += '<option value="Dungus Iwul">Dungus Iwul</option>';
+            NAMAITEMDATA_options_str  += '<option value="EX PLG IV">EX PLG IV</option>';
+            NAMAITEMDATA_options_str  += '<option value="Fakfak Mountains">Fakfak Mountains</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gn. Dua Saudara">Gn. Dua Saudara</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gunung Ambang">Gunung Ambang</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gunung Batu Gamping">Gunung Batu Gamping</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gunung Burangrang	">Gunung Burangrang	</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gunung Butak">Gunung Butak</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gunung Jagat">Gunung Jagat</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gunung Kantawan">Gunung Kantawan</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gunung Lengkuas">Gunung Lengkuas</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gunung Lokon">Gunung Lokon</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gunung Mutis">Gunung Mutis</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gunung Pasi">Gunung Pasi</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gunung Sahuwai">Gunung Sahuwai</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gunung Sibela">Gunung Sibela</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gunung Sojol">Gunung Sojol</option>';
+            NAMAITEMDATA_options_str  += '<option value="Gunung Watangan">Gunung Watangan</option>';
+            NAMAITEMDATA_options_str  += '<option value="Hutan Bakau Pantai Timur">Hutan Bakau Pantai Timur</option>';
+            NAMAITEMDATA_options_str  += '<option value="Hutan Lambusango">Hutan Lambusango</option>';
+            NAMAITEMDATA_options_str  += '<option value="Janthoi">Janthoi</option>';
+            NAMAITEMDATA_options_str  += '<option value="Jereweh">Jereweh</option>';
+            NAMAITEMDATA_options_str  += '<option value="Karang Bolong">Karang Bolong</option>';
+            NAMAITEMDATA_options_str  += '<option value="Lembah Anai">Lembah Anai</option>';
+            NAMAITEMDATA_options_str  += '<option value="Lembah Harau">Lembah Harau</option>';
+            NAMAITEMDATA_options_str  += '<option value="Liang Balik">Liang Balik</option>';
+            NAMAITEMDATA_options_str  += '<option value="MUARA KENDAWANGAN">MUARA KENDAWANGAN</option>';
+            NAMAITEMDATA_options_str  += '<option value="Mandor">Mandor</option>';
+            NAMAITEMDATA_options_str  += '<option value="Mangrove Maubesi">Mangrove Maubesi</option>';
+            NAMAITEMDATA_options_str  += '<option value="Maninjau">Maninjau</option>';
+            NAMAITEMDATA_options_str  += '<option value="Mapia">Mapia</option>';
+            NAMAITEMDATA_options_str  += '<option value="Marang (Eks PLG I)">Marang (Eks PLG I)</option>';
+            NAMAITEMDATA_options_str  += '<option value="Martelu Purba">Martelu Purba</option>';
+            NAMAITEMDATA_options_str  += '<option value="Moga">Moga</option>';
+            NAMAITEMDATA_options_str  += '<option value="Nusakambangan Barat">Nusakambangan Barat</option>';
+            NAMAITEMDATA_options_str  += '<option value="Obi island">Obi island</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pantai Sausapor">Pantai Sausapor</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pantodomas">Pantodomas</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pararawen Conservation Area">Pararawen Conservation Area</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pegunungan Arfak">Pegunungan Arfak</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pegunungan Kumawa">Pegunungan Kumawa</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pegunungan Tamrau Selatan">Pegunungan Tamrau Selatan</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pegunungan Wondiwoi">Pegunungan Wondiwoi</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pulau Berkeh">Pulau Berkeh</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pulau Bokor">Pulau Bokor</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pulau Kofiau">Pulau Kofiau</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pulau Larat">Pulau Larat</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pulau Misool">Pulau Misool</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pulau Noko">Pulau Noko</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pulau Panjang">Pulau Panjang</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pulau Pombo">Pulau Pombo</option>';
+            NAMAITEMDATA_options_str  += '<option value="Pulau Sempu">Pulau Sempu</option>';
+            NAMAITEMDATA_options_str  += '<option value="Rawa Singkil">Rawa Singkil</option>';
+            NAMAITEMDATA_options_str  += '<option value="Rimbo Panti">Rimbo Panti</option>';
+            NAMAITEMDATA_options_str  += '<option value="Seho Island">Seho Island</option>';
+            NAMAITEMDATA_options_str  += '<option value="Sei Sebangau">Sei Sebangau</option>';
+            NAMAITEMDATA_options_str  += '<option value="Sibolangit">Sibolangit</option>';
+            NAMAITEMDATA_options_str  += '<option value="Sisimeni Sanam">Sisimeni Sanam</option>';
+            NAMAITEMDATA_options_str  += '<option value="Sukawayana">Sukawayana</option>';
+            NAMAITEMDATA_options_str  += '<option value="Sungai Barito">Sungai Barito</option>';
+            NAMAITEMDATA_options_str  += '<option value="Sungai Kapuas">Sungai Kapuas</option>';
+            NAMAITEMDATA_options_str  += '<option value="Sungai Niff">Sungai Niff</option>';
+            NAMAITEMDATA_options_str  += '<option value="Tafermaar">Tafermaar</option>';
+            NAMAITEMDATA_options_str  += '<option value="Takokak">Takokak</option>';
+            NAMAITEMDATA_options_str  += '<option value="Talaga Bodas">Talaga Bodas</option>';
+            NAMAITEMDATA_options_str  += '<option value="Tangkuban Perahu - Pelabuhan Ratu">Tangkuban Perahu - Pelabuhan Ratu</option>';
+            NAMAITEMDATA_options_str  += '<option value="Tanjung Malatayur">Tanjung Malatayur</option>';
+            NAMAITEMDATA_options_str  += '<option value="Tanjung Pengharapan-Sungai Embung">Tanjung Pengharapan-Sungai Embung</option>';
+            NAMAITEMDATA_options_str  += '<option value="Tanjung Sial">Tanjung Sial</option>';
+            NAMAITEMDATA_options_str  += '<option value="Telaga Dringo">Telaga Dringo</option>';
+            NAMAITEMDATA_options_str  += '<option value="Telaga Patengan">Telaga Patengan</option>';
+            NAMAITEMDATA_options_str  += '<option value="Telaga Warna">Telaga Warna</option>';
+            NAMAITEMDATA_options_str  += '<option value="Yanlapa">Yanlapa</option>';
+            sel_NAMAITEMDATA.innerHTML = NAMAITEMDATA_options_str;
+            div_NAMAITEMDATA.appendChild(sel_NAMAITEMDATA);
+            var lab_NAMAITEMDATA = document.createElement('div');
+            lab_NAMAITEMDATA.innerHTML = 'NAMA ITEM DATA';
+            lab_NAMAITEMDATA.className = 'filterlabel';
+            div_NAMAITEMDATA.appendChild(lab_NAMAITEMDATA);
+            var reset_NAMAITEMDATA = document.createElement('div');
+            reset_NAMAITEMDATA.innerHTML = 'clear filter';
+            reset_NAMAITEMDATA.className = 'filterlabel';
+            reset_NAMAITEMDATA.onclick = function() {
+                var options = document.getElementById("sel_NAMAITEMDATA").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_NAMAITEMDATA.appendChild(reset_NAMAITEMDATA);
+        </script>
+    </body>
+</html>
